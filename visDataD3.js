@@ -1,30 +1,31 @@
 var dateParse = d3.timeParse("%Y-%m-%m");
+var fileName = 'https://gist.githubusercontent.com/radhika-sivarajan/d78e4444edf3816fb0c3d939da9bc3ed/raw/6ecaa93312d3c629d89f416343867fbb7f7108e4/datasrc.csv';
 
-var margin = { top: 30, right: 20, bottom: 30, left: 50 };
-var svgWidth = 700
-var svgHeight = 500;
+d3.csv(fileName).then(function (data) {
+  console.log(data);
+  makeVisChart(data);
+});
 
-var canvas = d3.select('.bar-diagram')
-  .append('svg')
-  .attr('width', svgWidth)
-  .attr('height', svgHeight)
-  .append("g")
-  .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var xScale = d3.scaleBand()
-  .range([0, svgWidth]);
-
-var yScale = d3.scaleLinear()
-  .range([svgHeight, 0]);
-
-var xAxis = d3.axisBottom(xScale);
-var yAxis = d3.axisLeft(yScale);
-
-d3.csv('https://gist.githubusercontent.com/radhika-sivarajan/d78e4444edf3816fb0c3d939da9bc3ed/raw/6ecaa93312d3c629d89f416343867fbb7f7108e4/datasrc.csv').then(function (data) {
+function makeVisChart(data) {
+  var margin = { top: 30, right: 50, bottom: 30, left: 50 };
+  var svgWidth = 700 - margin.left - margin.right;
+  var svgHeight = 500 - margin.top - margin.bottom;
 
   // Scale the range of the data
-  xScale.domain(d3.range(0, data.length + 1));
-  yScale.domain([d3.min(data, function (d) { return d.Value; }), d3.max(data, function (d) { return d.Value; })]);
+  var xScale = d3.scaleBand()
+    .range([0, svgWidth])
+    .domain(d3.range(0, data.length + 1));
+
+  var yScale = d3.scaleLinear()
+    .range([svgHeight, 0])
+    .domain([d3.min(data, function (d) { return d.Value; }), d3.max(data, function (d) { return d.Value; })]);
+
+  var canvas = d3.select('.bar-diagram')
+    .append('svg')
+    .attr('width', svgWidth + margin.left + margin.right)
+    .attr('height', svgHeight + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   canvas.selectAll('rect')
     .data(data)
@@ -45,6 +46,9 @@ d3.csv('https://gist.githubusercontent.com/radhika-sivarajan/d78e4444edf3816fb0c
     })
     .attr('fill', 'green');
 
+  var xAxis = d3.axisBottom(xScale);
+  var yAxis = d3.axisLeft(yScale);
+
   // Add the X Axis
   canvas.append("g")
     .attr("class", "x axis")
@@ -55,4 +59,4 @@ d3.csv('https://gist.githubusercontent.com/radhika-sivarajan/d78e4444edf3816fb0c
   canvas.append("g")
     .attr("class", "y axis")
     .call(yAxis);
-});
+}

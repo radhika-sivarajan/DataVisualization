@@ -6,37 +6,44 @@ var svgWidth = 700 - margin.left - margin.right;
 var svgHeight = 500 - margin.top - margin.bottom;
 var padding = 0.25;
 
-var color = d3.scalePoint()
-    .range(["#ca0020", "#f4a582", "#d5d5d5", "#92c5de", "#0571b0"]);
+var canvas = d3.select('.bar-diagram')
+    .append('svg')
+    .attr('width', svgWidth + margin.left + margin.right)
+    .attr('height', svgHeight + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// Readd csv file
 d3.csv(fileName).then(function(data) {
+    makeOptions(data);
     makeVisChart(data);
 });
 
+function makeOptions(csvData) {
 
-
-function makeVisChart(data) {
-
-    var csvData = {};
+    // Get platform names
     var allPlatform = [];
     var uniquePlatform = [];
-    data.forEach(function(d) {
+    csvData.forEach(function(d) {
         allPlatform.push(d.Platform);
     });
     uniquePlatform = [...new Set(allPlatform)];
-    console.log(uniquePlatform);
 
-    var menu = d3.selectAll("#selectPlatform")
-    menu.selectAll("option")
+    // Make drop-down list for selecting platform
+    var platformMenu = d3.select("#selectPlatform");
+    platformMenu.selectAll("option")
         .data(uniquePlatform)
         .enter()
         .append("option")
         .attr("value", function(d) { return d; })
-        .text(function(d) { return d; })
-        .filter(function(d, i) {
-            return this.selected;
-        });
+        .text(function(d) { return d; });
+    platformMenu.on("change", function(d) {
+        var selectedPlatforms = d3.select("#selectPlatform").node().value;
+        console.log(selectedPlatforms);
+    })
+}
 
+function makeVisChart(data) {
 
     // Scale the range of the data
     var xScale = d3.scaleBand()
@@ -46,15 +53,6 @@ function makeVisChart(data) {
     var yScale = d3.scaleLinear()
         .range([svgHeight, 0])
         .domain([d3.min(data, function(d) { return d.Value; }), d3.max(data, function(d) { return d.Value; })]);
-
-    var canvas = d3.select('.bar-diagram')
-        .append('svg')
-        .attr('width', svgWidth + margin.left + margin.right)
-        .attr('height', svgHeight + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-
 
     canvas.selectAll('rect')
         .data(data)

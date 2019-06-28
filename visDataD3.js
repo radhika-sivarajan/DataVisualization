@@ -37,10 +37,12 @@ function makeOptions(csvData) {
         .append("option")
         .attr("value", function(d) { return d; })
         .text(function(d) { return d; });
-    platformMenu.on("change", function(d) {
-        var selectedPlatforms = d3.select("#selectPlatform").node().value;
-        console.log(selectedPlatforms);
-    })
+
+
+    // Get selected platform data from csv
+    var selectedPlatforms = ["Platform 1"];
+    var selectedPlatformsData = csvData.filter(function(d) { return selectedPlatforms.indexOf(d.Platform) >= 0; });
+    console.log(selectedPlatformsData);
 }
 
 function makeVisChart(data) {

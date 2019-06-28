@@ -17,16 +17,36 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-8 bg-light bar-diagram">
+            <div class="col-8 bg-light bar-diagram chart">
+            </div>
+            <div class="col-4 bg-secondary p-4 diagram-choices">
+                <div class="border border-white text-center p-3 form-group">
+                    <h6 class="text-white"><b>VIEW BY</b></h6>
+                    <form>
+                        <label class="radio-inline">
+                            <input type="radio" name="optRadio" checked> Platform 
+                        </label>
+                        <label class="radio-inline">
+                            <input type="radio" name="optRadio"> Product 
+                        </label>
+                    </form>
+                </div>
+                <div class="form-group">
+                    <label for="selectPlatform"><b class="text-white">Select platform(s)</b></label>
+                    <select class="form-control" select multiple id="selectPlatform"></select>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="selectProduct"><b class="text-white">Select product(s)</b></label>
+                    <select class="form-control" select multiple id="selectProduct"></select>
+                    </select>
+                </div>
 
             </div>
-            <div class="col-4 bg-secondary diagram-choices">
-                
-            </div>
         </div>
-    </div>
-    <script src="https://d3js.org/d3.v5.min.js"></script>
-    <script src="visDataD3.js"></script>
+        <script src="https://d3js.org/d3.v5.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="visDataD3.js"></script>
 </body>
 
 </html>

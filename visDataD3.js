@@ -6,6 +6,7 @@ var svgWidth = 700 - margin.left - margin.right;
 var svgHeight = 500 - margin.top - margin.bottom;
 var padding = 0.25;
 
+// Canvas for the graph
 var canvas = d3.select('.bar-diagram')
     .append('svg')
     .attr('width', svgWidth + margin.left + margin.right)
@@ -13,14 +14,13 @@ var canvas = d3.select('.bar-diagram')
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-// Readd csv file
+// Read csv file
 d3.csv(fileName).then(function(data) {
     makeOptions(data);
-    makeVisChart(data);
+    // makeVisChart(data);
 });
 
 function makeOptions(csvData) {
-
     // Get platform names
     var allPlatform = [];
     var uniquePlatform = [];
@@ -29,24 +29,89 @@ function makeOptions(csvData) {
     });
     uniquePlatform = [...new Set(allPlatform)];
 
-    // Make drop-down list for selecting platform
-    var platformMenu = d3.select("#selectPlatform");
-    platformMenu.selectAll("option")
+    // Create check bock for platform
+    d3.select('#selectPlatform')
+        .selectAll('.checkboxPlatform')
         .data(uniquePlatform)
         .enter()
-        .append("option")
-        .attr("value", function(d) { return d; })
-        .text(function(d) { return d; });
+        .append('div')
+        .attr('class', 'checkboxPlatform')
+        .append('label')
+        .html(function(d) {
+            var checkboxPlatform = '<input id="' + d + '" type="checkbox" class="platform">';
+            return checkboxPlatform + ' ' + d;
+        });
 
+    // When check box selected generate checkbox for product
+    d3.select('#selectPlatform')
+        .selectAll('.checkboxPlatform')
+        .on('change', function() {
+            var checkedBox = d3.select('#selectPlatform')
+                .selectAll('.platform:checked');
 
-    // Get selected platform data from csv
-    var selectedPlatforms = ["Platform 1"];
-    var selectedPlatformsData = csvData.filter(function(d) { return selectedPlatforms.indexOf(d.Platform) >= 0; });
-    console.log(selectedPlatformsData);
+            var selectedPlatforms = checkedBox._groups.map(function(platform) {
+                var idList = [];
+                for (i = 0; i < platform.length; i++) {
+                    idList.push(platform[i].id);
+                }
+                return idList;
+            });
+
+            // Get selected platform data from csv
+            var selectedPlatformsData = csvData.filter(function(d) {
+                return selectedPlatforms[0].indexOf(d.Platform) >= 0;
+            });
+            // console.log(selectedPlatforms[0]);
+
+            // Get product name with platform
+            var allPlatformProduct = [];
+            var uniquePlatformProduct = [];
+            selectedPlatformsData.forEach(function(d) {
+                allPlatformProduct.push(d.Platform + '-' + d.ProductType);
+            });
+            uniquePlatformProduct = [...new Set(allPlatformProduct)];
+            // console.log(uniquePlatformProduct);
+
+            d3.select('#selectProduct')
+                .selectAll('.checkboxProduct')
+                .data(uniquePlatformProduct)
+                .enter()
+                .append('div')
+                .attr('class', 'checkboxProduct')
+                .append('label')
+                .html(function(d, index) {
+                    var checkboxProduct = '<input id="' + uniquePlatformProduct[index] + '" type="checkbox" class="product">';
+                    return checkboxProduct + ' ' + uniquePlatformProduct[index];
+                });
+
+            d3.select('#selectProduct')
+                .selectAll('.checkboxProduct')
+                .on('change', function() {
+                    var checkedBoxProduct = d3.select('#selectProduct')
+                        .selectAll('.product:checked');
+                    var selectedProducts = checkedBoxProduct._groups.map(function(product) {
+                        var itemList = [];
+                        for (i = 0; i < product.length; i++) {
+                            itemList.push(product[i].id);
+                        }
+                        return itemList;
+                    });
+                    getCSVOfSelected(csvData, selectedProducts[0])
+                });
+        });
+}
+
+function getCSVOfSelected(allCSVData, selectedArray) {
+    selectedArray.forEach(function(d) {
+        var data = d.split("-");
+        var selectedData = allCSVData.filter(function(d) {
+            return (data[0].indexOf(d.Platform) >= 0 && data[1].indexOf(d.ProductType) >= 0);
+        });
+        makeVisChart(selectedData);
+    });
 }
 
 function makeVisChart(data) {
-
     // Scale the range of the data
     var xScale = d3.scaleBand()
         .range([0, svgWidth], .1)
@@ -88,5 +153,4 @@ function makeVisChart(data) {
     canvas.append("g")
         .attr("class", "y axis")
         .call(yAxis);
-
 }
